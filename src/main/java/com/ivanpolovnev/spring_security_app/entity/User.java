@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -22,7 +23,7 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -52,12 +53,24 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, roles);
     }
 
     @Override
